@@ -30,9 +30,6 @@
   (if cont-match
       (do (setv pre (cut data 0 (.start cont-match)))
           (setv post (cut data (.end cont-match)))
-          (fn [content]
-            (nonlocal pre)
-            (nonlocal post)
-            (+ pre content post)))
+          (fn [content] (+ pre content post)))
       data))
                      
