@@ -1,4 +1,4 @@
-(import os sys re)
+(import os sys re argparse)
 
 (setv *chunk-dir* ".")
 
@@ -7,8 +7,8 @@
   (for [ext [".html" ".htm"]]
     (setv file (+ base ext))
     (if (os.path.isfile file)
-        (with [f (open file "r")]
-          (return (parse-html (.read f) #** val))))))
+        (return (parse-html-file file #** val)))))
+
 
 (defn parse-html [data &kwargs val]
   (setv data (re.sub r"\{\{\s*(\w+)\s*\}\}"
@@ -32,4 +32,20 @@
           (setv post (cut data (.end cont-match)))
           (fn [content] (+ pre content post)))
       data))
+
+
+(defn parse-html-file [filename &kwargs val]
+  (with [f (open filename "r")]
+    (parse-html (.read f) #** val)))
+
+
+(defmain [&rest _]
+  (setv parser (argparse.ArgumentParser))
+  (.add-argument parser "STRING"
+                 :help "name of file to generate (without extension)")
+  (.add-argument parser "-t" :type str :default "."
+                 :help "directory with templates")
+  (setv args (.parse-args parser))
+  (setv *chunk-dir* args.t)
+  (print (parse-html-file args.STRING)))
                      
